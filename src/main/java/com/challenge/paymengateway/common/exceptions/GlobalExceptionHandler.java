@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.common.exceptions;
+package com.challenge.viagensbackend.common.exceptions;
 
 
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.config;
+package com.challenge.viagensbackend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

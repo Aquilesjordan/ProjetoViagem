@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.config.security;
+package com.challenge.viagensbackend.config.security;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,7 +6,7 @@ import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.challenge.paymengateway.application.model.User;
+import com.challenge.viagensbackend.application.model.User;
 
 public class UserDetailsImpl implements UserDetails{
   private final User user;

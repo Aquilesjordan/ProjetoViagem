@@ -1,15 +1,15 @@
-package com.challenge.paymengateway.application.service;
+package com.challenge.viagensbackend.application.service;
 
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.challenge.paymengateway.application.dto.UserCreateDTO;
-import com.challenge.paymengateway.application.dto.UserResponseDTO;
-import com.challenge.paymengateway.application.model.User;
-import com.challenge.paymengateway.application.repository.UserRepository;
-import com.challenge.paymengateway.common.utils.CPFUtils;
+import com.challenge.viagensbackend.application.dto.UserCreateDTO;
+import com.challenge.viagensbackend.application.dto.UserResponseDTO;
+import com.challenge.viagensbackend.application.model.User;
+import com.challenge.viagensbackend.application.repository.UserRepository;
+import com.challenge.viagensbackend.common.utils.CPFUtils;
 
 import jakarta.transaction.Transactional;
 

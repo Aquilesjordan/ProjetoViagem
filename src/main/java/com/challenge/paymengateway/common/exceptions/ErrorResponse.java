@@ -1,3 +1,3 @@
-package com.challenge.paymengateway.common.exceptions;
+package com.challenge.viagensbackend.common.exceptions;
 
 public record ErrorResponse(int code, String detail) {}

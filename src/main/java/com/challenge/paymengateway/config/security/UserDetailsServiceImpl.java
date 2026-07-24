@@ -1,10 +1,10 @@
-package com.challenge.paymengateway.config.security;
+package com.challenge.viagensbackend.config.security;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.challenge.paymengateway.application.repository.UserRepository;
+import com.challenge.viagensbackend.application.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService{

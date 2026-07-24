@@ -1,14 +1,14 @@
-package com.challenge.paymengateway.application.service;
+package com.challenge.viagensbackend.application.service;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.challenge.paymengateway.application.dto.LoginRequestDTO;
-import com.challenge.paymengateway.application.dto.LoginResponseDTO;
-import com.challenge.paymengateway.config.security.JwtService;
-import com.challenge.paymengateway.config.security.UserDetailsImpl;
-import com.challenge.paymengateway.config.security.UserDetailsServiceImpl;
+import com.challenge.viagensbackend.application.dto.LoginRequestDTO;
+import com.challenge.viagensbackend.application.dto.LoginResponseDTO;
+import com.challenge.viagensbackend.config.security.JwtService;
+import com.challenge.viagensbackend.config.security.UserDetailsImpl;
+import com.challenge.viagensbackend.config.security.UserDetailsServiceImpl;
 
 @Service
 public class AuthService { 

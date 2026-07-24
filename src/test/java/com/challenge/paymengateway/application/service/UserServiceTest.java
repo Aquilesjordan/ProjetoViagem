@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.application.service;
+package com.challenge.viagensbackend.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,10 +14,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.challenge.paymengateway.application.dto.UserCreateDTO;
-import com.challenge.paymengateway.application.dto.UserResponseDTO;
-import com.challenge.paymengateway.application.model.User;
-import com.challenge.paymengateway.application.repository.UserRepository;
+import com.challenge.viagensbackend.application.dto.UserCreateDTO;
+import com.challenge.viagensbackend.application.dto.UserResponseDTO;
+import com.challenge.viagensbackend.application.model.User;
+import com.challenge.viagensbackend.application.repository.UserRepository;
 
 
 class UserServiceTest {
@@ -36,7 +36,7 @@ class UserServiceTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         userService = new UserService(userRepository, passwordEncoder);
-        validDto = new UserCreateDTO("João Silva", "joao@email.com", "123.456.789-09", "senha123");
+        validDto = new UserCreateDTO("Joï¿½o Silva", "joao@email.com", "123.456.789-09", "senha123");
     }
 
     @Test
@@ -58,7 +58,7 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.getId());
-        assertEquals("João Silva", result.getName());
+        assertEquals("Joï¿½o Silva", result.getName());
         assertEquals("joao@email.com", result.getEmail());
 
         verify(userRepository).save(any(User.class));
@@ -69,7 +69,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> userService.createUser(validDto));
-        assertEquals("E-mail já cadastrado", ex.getMessage());
+        assertEquals("E-mail jï¿½ cadastrado", ex.getMessage());
     }
 
     @Test
@@ -78,7 +78,7 @@ class UserServiceTest {
         when(userRepository.existsByCpf(anyString())).thenReturn(true);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> userService.createUser(validDto));
-        assertEquals("CPF já cadastrado", ex.getMessage());
+        assertEquals("CPF jï¿½ cadastrado", ex.getMessage());
     }
 
     @Test
@@ -89,6 +89,6 @@ class UserServiceTest {
         when(userRepository.existsByCpf(anyString())).thenReturn(false);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> userService.createUser(invalidCpfDto));
-        assertEquals("CPF inválido", ex.getMessage());
+        assertEquals("CPF invï¿½lido", ex.getMessage());
     }
 }

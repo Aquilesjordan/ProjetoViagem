@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.config.security;
+package com.challenge.viagensbackend.config.security;
 
 import java.time.Instant;
 import java.util.Date;

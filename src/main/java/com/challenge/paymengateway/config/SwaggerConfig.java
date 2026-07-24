@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.config;
+package com.challenge.viagensbackend.config;
 
 
 import org.springframework.context.annotation.Bean;
@@ -29,9 +29,9 @@ public class SwaggerConfig {
                             .in(In.HEADER)
                             .description("Token no header: **Bearer {seu_token}**")))
                 .info(new Info()
-                        .title("Authentication API")
+                        .title("ViagensBackEnd API")
                         .version("v1.0")
-                        .description("Documentacao da API de autenticacao")
+                        .description("Documentacao da API de viagens e autenticacao")
                         .license(new License()
                             .name("Apache 2.0")
                             .url("http://springdoc.org")));

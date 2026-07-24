@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.application.controller;
+package com.challenge.viagensbackend.application.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.challenge.paymengateway.application.dto.LoginRequestDTO;
-import com.challenge.paymengateway.application.dto.LoginResponseDTO;
-import com.challenge.paymengateway.application.service.AuthService;
+import com.challenge.viagensbackend.application.dto.LoginRequestDTO;
+import com.challenge.viagensbackend.application.dto.LoginResponseDTO;
+import com.challenge.viagensbackend.application.service.AuthService;
 
 import jakarta.validation.Valid;
 

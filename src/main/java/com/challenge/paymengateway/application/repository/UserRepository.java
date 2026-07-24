@@ -1,11 +1,11 @@
-package com.challenge.paymengateway.application.repository;
+package com.challenge.viagensbackend.application.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.challenge.paymengateway.application.model.User;
+import com.challenge.viagensbackend.application.model.User;
 
 @Repository 
 public interface UserRepository extends JpaRepository<User, Integer>{

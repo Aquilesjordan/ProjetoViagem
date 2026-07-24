@@ -1,4 +1,4 @@
-package com.challenge.paymengateway.application.dto;
+package com.challenge.viagensbackend.application.dto;
 
 public class UserResponseDTO {
   private Integer id;
