@@ -22,21 +22,31 @@ export const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(() => {
-    const storedAuth = getStoredAuth();
-    if (storedAuth?.token && storedAuth.user) {
-      api.defaults.headers.common.Authorization = `Bearer ${storedAuth.token}`;
-      return storedAuth.user;
-    }
-    return null;
+  const storedAuth = getStoredAuth();
+
+  if (storedAuth?.token) {
+    api.defaults.headers.common.Authorization = `Bearer ${storedAuth.token}`;
+
+    return {} as User;
+  }
+
+  return null;
+});
+
+ const login = async (credentials: AuthCredentials) => {
+  const response = await loginRequest(credentials);
+
+  setUser({} as User);
+
+  setStoredAuth({
+    token: response.token,
   });
 
-  const login = async (credentials: AuthCredentials) => {
-    const response = await loginRequest(credentials);
-    setUser(response.user);
-    setStoredAuth(response);
-    api.defaults.headers.common.Authorization = `Bearer ${response.token}`;
-    navigate('/dashboard');
-  };
+  api.defaults.headers.common.Authorization =
+    `Bearer ${response.token}`;
+
+  navigate('/dashboard');
+};
 
   const logout = () => {
     clearStoredAuth();
