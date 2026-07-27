@@ -1,5 +1,5 @@
 INSERT INTO users (name, email, password, cpf)
-SELECT 'Admin', 'admin@viagens.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '11111111111'
+SELECT 'Admin', 'admin@viagens.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '11111111112'
 WHERE NOT EXISTS (
     SELECT 1 FROM users WHERE email = 'admin@viagens.com'
 );
