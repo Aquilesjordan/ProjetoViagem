@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS manutencoes (
 
 -- V2__seed_data.sql
 INSERT INTO users (name, email, password, cpf)
-SELECT 'Admin', 'admin@viagens.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '11111111111'
+SELECT 'Admin', 'admin@viagens.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '11111111112'
 WHERE NOT EXISTS (
     SELECT 1 FROM users WHERE email = 'admin@viagens.com'
 );
@@ -374,7 +374,7 @@ INSERT INTO manutencoes (veiculo_id, data_inicio, data_finalizacao, tipo_servico
 
 ## 6) Demonstração
 
-> 📸 Screenshots ou link de deploy: **[adicionar aqui]**
+> 📸 Video: **[\[adicionar aqui\]](https://www.youtube.com/watch?v=_5d01Hn8CsA)**
 
 ---
 

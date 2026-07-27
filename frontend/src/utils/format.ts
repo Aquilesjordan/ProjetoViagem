@@ -35,11 +35,14 @@ export function formatCurrency(value: number) {
   });
 }
 
-export function toLocalDateTime(value: string) {
+export function toLocalDateTime(value: string): string {
+  if (!value) return '';
+  
+  const match = value.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/);
+  if (match) return match[1];
+
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-  const iso = date.toISOString();
-  return iso.substring(0, 16);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
