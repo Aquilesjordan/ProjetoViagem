@@ -30,20 +30,20 @@ const columnDefinitions: GridColDef<Trip>[] = [
     headerName: 'Data de saída',
     flex: 1,
     minWidth: 170,
-    valueGetter: (_value, row) => formatDateTime(row.dataSaida),
+    valueGetter: (params) => formatDateTime(params.row.dataSaida),
   },
   {
     field: 'dataChegada',
     headerName: 'Data de chegada',
     flex: 1,
     minWidth: 170,
-    valueGetter: (_value, row) => (row.dataChegada ? formatDateTime(row.dataChegada) : '-'),
+    valueGetter: (params) => (params.row.dataChegada ? formatDateTime(params.row.dataChegada) : '-'),
   },
   {
     field: 'kmPercorrida',
     headerName: 'KM percorrida',
     minWidth: 140,
-    valueGetter: (_value, row) => formatKilometers(row.kmPercorrida),
+    valueGetter: (params) => formatKilometers(params.row.kmPercorrida),
   },
   {
     field: 'actions',

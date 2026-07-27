@@ -18,3 +18,16 @@ export async function createVeiculo(payload: CreateVeiculoPayload): Promise<Vehi
   const { data } = await api.post<Vehicle>('/api/veiculos', payload);
   return data;
 }
+
+export interface UpdateVeiculoPayload extends CreateVeiculoPayload {
+  id: number;
+}
+
+export async function updateVeiculo({ id, ...payload }: UpdateVeiculoPayload): Promise<Vehicle> {
+  const { data } = await api.put<Vehicle>(`/api/veiculos/${id}`, payload);
+  return data;
+}
+
+export async function deleteVeiculo(id: number): Promise<void> {
+  await api.delete(`/api/veiculos/${id}`);
+}

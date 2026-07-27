@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 
 @Validated
 @RestController
-@RequestMapping({ "/api/veiculos", "/api/vehicles" })
+@RequestMapping("/api/veiculos")
 public class VehicleController {
 
     private final VehicleService vehicleService;

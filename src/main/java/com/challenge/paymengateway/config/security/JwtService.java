@@ -16,17 +16,24 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
    private final SecretKey secretKey;
+   private final long expirationSeconds;
 
-    public JwtService(@Value("${security.jwt.secret}") String secret) {
+    public JwtService(
+            @Value("${security.jwt.secret}") String secret,
+            @Value("${security.jwt.expiration-seconds:28800}") long expirationSeconds) {
         if (secret == null || secret.length() < 32) {
             throw new IllegalStateException("O secretKey deve ter pelo menos 32 caracteres!");
         }
+        if (expirationSeconds <= 0) {
+            throw new IllegalStateException("security.jwt.expiration-seconds deve ser maior que zero");
+        }
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        this.expirationSeconds = expirationSeconds;
     }
 
     public String generateToken(UserDetailsImpl user) {
         Instant now = Instant.now();
-        Instant expire = now.plusSeconds(600);
+        Instant expire = now.plusSeconds(expirationSeconds);
 
         return Jwts.builder()
             .setSubject(user.getUsername())

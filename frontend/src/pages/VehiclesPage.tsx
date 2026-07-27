@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Card,
@@ -25,17 +25,20 @@ import {
   LocalShippingRounded,
   CalendarTodayOutlined,
   CategoryOutlined,
+  EditRounded,
+  DeleteRounded,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { fetchVeiculos, createVeiculo } from '../services/vehicleService';
+import { fetchVeiculos, createVeiculo, updateVeiculo, deleteVeiculo } from '../services/vehicleService';
 import { Vehicle } from '../types/trip';
 import { useNotification } from '../hooks/useNotification';
 import { AppButton } from '../components/ui/AppButton';
 import { FormTextField } from '../components/ui/FormTextField';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 const vehicleTypes = ['LEVE', 'PESADO'] as const;
 
@@ -75,28 +78,61 @@ function TipoChip({ tipo }: { tipo: string }) {
   );
 }
 
-const columns: GridColDef<Vehicle>[] = [
-  { field: 'placa', headerName: 'Placa', minWidth: 130, flex: 1 },
-  { field: 'model', headerName: 'Modelo', minWidth: 220, flex: 1 },
-  {
-    field: 'tipo',
-    headerName: 'Tipo',
-    minWidth: 140,
-    flex: 1,
-    renderCell: (params) => <TipoChip tipo={params.value as string} />,
-  },
-  {
-    field: 'ano',
-    headerName: 'Ano',
-    minWidth: 100,
-    flex: 1,
-    valueGetter: (_value, row) => row.ano ?? '-',
-  },
-];
+function buildColumns(
+  onEdit: (vehicle: Vehicle) => void,
+  onDelete: (vehicle: Vehicle) => void
+): GridColDef<Vehicle>[] {
+  return [
+    { field: 'placa', headerName: 'Placa', minWidth: 130, flex: 1 },
+    { field: 'model', headerName: 'Modelo', minWidth: 220, flex: 1 },
+    {
+      field: 'tipo',
+      headerName: 'Tipo',
+      minWidth: 140,
+      flex: 1,
+      renderCell: (params) => <TipoChip tipo={params.value as string} />,
+    },
+    {
+      field: 'ano',
+      headerName: 'Ano',
+      minWidth: 100,
+      flex: 1,
+      valueGetter: (params) => params.row.ano ?? '-',
+    },
+    {
+      field: 'actions',
+      headerName: 'Ações',
+      sortable: false,
+      filterable: false,
+      align: 'center',
+      headerAlign: 'center',
+      width: 130,
+      renderCell: (params: GridRenderCellParams<Vehicle>) => (
+        <Stack direction="row" spacing={0.5}>
+          <IconButton size="small" color="primary" onClick={() => onEdit(params.row)}>
+            <EditRounded fontSize="small" />
+          </IconButton>
+          <IconButton size="small" color="error" onClick={() => onDelete(params.row)}>
+            <DeleteRounded fontSize="small" />
+          </IconButton>
+        </Stack>
+      ),
+    },
+  ];
+}
 
-function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function VehicleFormModal({
+  open,
+  onClose,
+  editingVehicle,
+}: {
+  open: boolean;
+  onClose: () => void;
+  editingVehicle: Vehicle | null;
+}) {
   const notification = useNotification();
   const queryClient = useQueryClient();
+  const isEditing = Boolean(editingVehicle);
 
   const { handleSubmit, control, reset } = useForm<VehicleForm>({
     resolver: zodResolver(vehicleSchema),
@@ -104,15 +140,24 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: createVeiculo,
+    mutationFn: (payload: { placa: string; model: string; tipo: string; ano: number }) =>
+      isEditing && editingVehicle
+        ? updateVeiculo({ id: editingVehicle.id, ...payload })
+        : createVeiculo(payload),
     onSuccess: () => {
-      notification.showNotification('Veículo cadastrado com sucesso', 'success');
+      notification.showNotification(
+        isEditing ? 'Veículo atualizado com sucesso' : 'Veículo cadastrado com sucesso',
+        'success'
+      );
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       reset();
       onClose();
     },
     onError: () => {
-      notification.showNotification('Não foi possível cadastrar o veículo', 'error');
+      notification.showNotification(
+        isEditing ? 'Não foi possível atualizar o veículo' : 'Não foi possível cadastrar o veículo',
+        'error'
+      );
     },
   });
 
@@ -125,6 +170,25 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
     reset();
     onClose();
   };
+
+  const heading = isEditing ? 'Editar veículo' : 'Novo veículo';
+  const subtitle = isEditing ? 'Atualize os dados do veículo' : 'Preencha os dados para cadastrar';
+
+  useEffect(() => {
+    if (editingVehicle && open) {
+      reset({
+        placa: editingVehicle.placa,
+        model: editingVehicle.model,
+        tipo: editingVehicle.tipo,
+        ano: String(editingVehicle.ano ?? ''),
+      });
+      return;
+    }
+
+    if (open) {
+      reset({ placa: '', model: '', tipo: '', ano: '' });
+    }
+  }, [editingVehicle, open, reset]);
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -145,10 +209,10 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
           </Box>
           <Box>
             <Typography variant="h6" fontWeight={700} lineHeight={1.2}>
-              Novo veículo
+              {heading}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Preencha os dados para cadastrar
+              {subtitle}
             </Typography>
           </Box>
         </Stack>
@@ -242,8 +306,8 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
           <AppButton variant="text" onClick={handleClose} disabled={isPending}>
             Cancelar
           </AppButton>
-          <AppButton type="submit" loading={isPending}>
-            Cadastrar veículo
+          <AppButton type="submit" disabled={isPending}>
+            {isPending ? (isEditing ? 'Salvando...' : 'Cadastrando...') : isEditing ? 'Salvar alterações' : 'Cadastrar veículo'}
           </AppButton>
         </DialogActions>
       </form>
@@ -291,13 +355,45 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
 
 export default function VehiclesPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [vehicleToRemove, setVehicleToRemove] = useState<Vehicle | null>(null);
+  const queryClient = useQueryClient();
+  const notification = useNotification();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['vehicles'],
     queryFn: fetchVeiculos,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteVeiculo(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      notification.showNotification('Veículo removido com sucesso', 'success');
+    },
+    onError: () => {
+      notification.showNotification('Não foi possível excluir o veículo', 'error');
+    },
+  });
+
   const vehicles = data ?? [];
+  const columns = buildColumns(
+    (vehicle) => {
+      setEditingVehicle(vehicle);
+      setModalOpen(true);
+    },
+    (vehicle) => setVehicleToRemove(vehicle)
+  );
+
+  const handleOpenCreate = () => {
+    setEditingVehicle(null);
+    setModalOpen(true);
+  };
+
+  const handleCloseFormModal = () => {
+    setModalOpen(false);
+    setEditingVehicle(null);
+  };
 
   return (
     <Box>
@@ -340,7 +436,7 @@ export default function VehiclesPage() {
         </Stack>
       <AppButton
         startIcon={<AddRounded />}
-        onClick={() => setModalOpen(true)}
+        onClick={handleOpenCreate}
         sx={{
           width: 'auto !important',
           minWidth: 'auto !important',
@@ -394,7 +490,23 @@ export default function VehiclesPage() {
         </Card>
       )}
 
-      <AddVehicleModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <VehicleFormModal open={modalOpen} onClose={handleCloseFormModal} editingVehicle={editingVehicle} />
+
+      <ConfirmDialog
+        open={Boolean(vehicleToRemove)}
+        title="Excluir este veículo?"
+        description={
+          vehicleToRemove
+            ? `Você está prestes a excluir o veículo ${vehicleToRemove.model} (${vehicleToRemove.placa}). Essa ação é permanente e não poderá ser desfeita.`
+            : 'Essa ação é permanente e não poderá ser desfeita.'
+        }
+        onClose={() => setVehicleToRemove(null)}
+        onConfirm={() => {
+          if (!vehicleToRemove) return;
+          deleteMutation.mutate(vehicleToRemove.id);
+          setVehicleToRemove(null);
+        }}
+      />
     </Box>
   );
 }

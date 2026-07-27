@@ -9,6 +9,7 @@ import {
   Alert,
   AlertTitle,
   Button,
+  Chip,
 } from '@mui/material';
 import {
   RouteRounded,
@@ -17,6 +18,9 @@ import {
   RefreshRounded,
   BarChartRounded,
   DonutLargeRounded,
+  DashboardRounded,
+  PaymentsRounded,
+  BuildRounded,
 } from '@mui/icons-material';
 import {
   ResponsiveContainer,
@@ -33,6 +37,12 @@ import { StatCard } from '../components/ui/StatCard';
 import { formatCurrency } from '../utils/format';
 
 const statIcons = [RouteRounded, LocalShippingRounded, TrendingUpRounded];
+
+const statusConfig: Record<string, { label: string; color: 'warning' | 'info' | 'success' }> = {
+  PENDENTE: { label: 'Pendente', color: 'warning' },
+  EM_REALIZACAO: { label: 'Em realização', color: 'info' },
+  CONCLUIDA: { label: 'Concluída', color: 'success' },
+};
 
 function ChartCard({
   title,
@@ -91,6 +101,9 @@ function DashboardSkeleton() {
           <Skeleton variant="rounded" height={380} sx={{ borderRadius: 3 }} />
         </Grid>
       ))}
+      <Grid item xs={12}>
+        <Skeleton variant="rounded" height={90} sx={{ borderRadius: 3 }} />
+      </Grid>
     </Grid>
   );
 }
@@ -131,13 +144,28 @@ export default function DashboardPage() {
 
   return (
     <Box>
-      <Stack spacing={0.5} sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>
-          Visão geral
-        </Typography>
-        <Typography color="text.secondary">
-          Acompanhe os principais indicadores das suas viagens em tempo real.
-        </Typography>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <Box
+          sx={{
+            display: 'grid',
+            placeItems: 'center',
+            width: 44,
+            height: 44,
+            borderRadius: 2,
+            bgcolor: 'primary.50',
+            color: 'primary.main',
+          }}
+        >
+          <DashboardRounded />
+        </Box>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Visão geral
+          </Typography>
+          <Typography color="text.secondary">
+            Acompanhe os principais indicadores das suas viagens em tempo real.
+          </Typography>
+        </Box>
       </Stack>
 
       <Grid container spacing={3}>
@@ -231,10 +259,59 @@ export default function DashboardPage() {
             )}
           </ChartCard>
         </Grid>
+
         <Grid item xs={12}>
-          <Typography color="text.secondary">
-            Custo total de manutenção: <strong>{formatCurrency(data.custoTotalManutencao)}</strong>
-          </Typography>
+          <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container spacing={3} alignItems="center">
+                <Grid item xs={12} md={5}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        placeItems: 'center',
+                        width: 40,
+                        height: 40,
+                        borderRadius: 2,
+                        bgcolor: 'error.50',
+                        color: 'error.dark',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <PaymentsRounded fontSize="small" />
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Custo total de manutenção
+                      </Typography>
+                      <Typography variant="h6" fontWeight={700}>
+                        {formatCurrency(data.custoTotalManutencao)}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Grid>
+
+                <Grid item xs={12} md={7}>
+                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+                    <BuildRounded fontSize="small" sx={{ color: 'text.secondary', mr: 0.5 }} />
+                    {data.manutencoesPorStatus.map((item) => {
+                      const config = statusConfig[item.status] ?? { label: item.status, color: 'info' as const };
+                      return (
+                        <Chip
+                          key={item.status}
+                          label={`${config.label}: ${item.quantidade}`}
+                          color={config.color}
+                          variant="outlined"
+                          size="small"
+                          sx={{ fontWeight: 600 }}
+                        />
+                      );
+                    })}
+                  </Stack>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
     </Box>

@@ -189,8 +189,8 @@ export default function LoginPage() {
 
                  
 
-                  <AppButton type="submit" loading={isSubmitting} fullWidth size="large">
-                    Entrar
+                  <AppButton type="submit" disabled={isSubmitting} fullWidth size="large">
+                    {isSubmitting ? 'Entrando...' : 'Entrar'}
                   </AppButton>
                 </Stack>
               </form>

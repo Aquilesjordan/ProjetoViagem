@@ -12,11 +12,12 @@ Sistema full stack para gestão de **veículos**, **viagens** e **manutenções*
 ## Sumário
 
 1. [Como configurar e rodar o projeto localmente](#1-como-configurar-e-rodar-o-projeto-localmente)
-2. [Decisões técnicas, ferramentas e arquitetura](#2-decisões-técnicas-ferramentas-e-arquitetura)
-3. [Alterações no banco de dados](#3-alterações-no-banco-de-dados)
-4. [Endpoints principais](#4-endpoints-principais)
-5. [Demonstração](#5-demonstração)
-6. [Estrutura de pastas](#6-estrutura-de-pastas)
+2. [Como rodar com Docker Compose (full stack)](#2-como-rodar-com-docker-compose-full-stack)
+3. [Decisões técnicas, ferramentas e arquitetura](#3-decisões-técnicas-ferramentas-e-arquitetura)
+4. [Alterações no banco de dados](#4-alterações-no-banco-de-dados)
+5. [Endpoints principais](#5-endpoints-principais)
+6. [Demonstração](#6-demonstração)
+7. [Estrutura de pastas](#7-estrutura-de-pastas)
 
 ---
 
@@ -101,7 +102,59 @@ Para testar endpoints protegidos:
 
 ---
 
-## 2) Decisões técnicas, ferramentas e arquitetura
+## 2) Como rodar com Docker Compose (full stack)
+
+O projeto está preparado para subir **PostgreSQL + backend Spring Boot + frontend React (build estático via Nginx)** com um único comando.
+
+### Arquivos usados
+
+- `docker-compose.yml`
+- `Dockerfile` (backend)
+- `frontend/Dockerfile` (build do frontend)
+- `frontend/nginx.conf` (fallback SPA para rotas do React Router)
+
+### Subir tudo
+
+```bash
+docker compose up --build
+```
+
+### Serviços e portas
+
+- **Frontend**: `http://localhost:5173`
+- **Backend**: `http://localhost:8081`
+- **Swagger**: `http://localhost:8081/swagger-ui/index.html`
+- **PostgreSQL**: `localhost:5432`
+
+### Variáveis importantes (definidas no compose)
+
+- `SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/viagens`
+- `SPRING_DATASOURCE_USERNAME=postgres`
+- `SPRING_DATASOURCE_PASSWORD=postgres`
+- `SERVER_PORT=8081`
+- `SECURITY_JWT_SECRET=changeitchangeitchangeitchangeit`
+
+### Parar containers
+
+```bash
+docker compose down
+```
+
+Para remover também o volume do banco:
+
+```bash
+docker compose down -v
+```
+
+### Troubleshooting rápido
+
+- Se a porta `5432`, `8081` ou `5173` estiver ocupada, altere o mapeamento em `docker-compose.yml`.
+- O backend depende do healthcheck do PostgreSQL (`pg_isready`), então ele só inicia após o banco ficar saudável.
+- Se alterar dependências do frontend/backend, rode novamente com `--build`.
+
+---
+
+## 3) Decisões técnicas, ferramentas e arquitetura
 
 ### Backend — tecnologias e por quê
 
@@ -112,7 +165,7 @@ Para testar endpoints protegidos:
 | **Spring Security + JWT (jjwt)** | Autenticação stateless, sem sessão no servidor — adequado para uma API consumida por um SPA. |
 | **Bean Validation** | Validação declarativa nos DTOs de entrada, evitando validação manual repetida nos controllers. |
 | **springdoc-openapi** | Gera documentação Swagger automaticamente a partir dos controllers, facilitando testes manuais. |
-| **Flyway** | Versionamento de schema auditável e reproduzível (ver seção 3). |
+| **Flyway** | Versionamento de schema auditável e reproduzível (ver seção 4). |
 | **PostgreSQL** | Banco relacional robusto, com suporte nativo a constraints e tipos usados no domínio (`CHECK`, `DECIMAL`). |
 | **Lombok** | Reduz boilerplate de getters/setters/construtores nas entidades e DTOs. |
 
@@ -183,7 +236,7 @@ src/
 
 ---
 
-## 3) Alterações no banco de dados
+## 4) Alterações no banco de dados
 
 ### Justificativa
 
@@ -194,7 +247,7 @@ O schema inicial foi adaptado para refletir o domínio real do desafio — contr
 - **`ON DELETE CASCADE`** nas chaves estrangeiras de `viagens` e `manutencoes`, já que esses registros não têm sentido de existir sem o veículo associado.
 - **Campos numéricos com `DECIMAL(10,2)`** para quilometragem e custo estimado, evitando problemas de precisão de ponto flutuante em valores financeiros e de medição.
 
-### Script (`src/main/resources/db/migration/V1__init.sql`)
+### Scripts de migration (`V1__init.sql` + `V2__seed_data.sql`)
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
@@ -232,19 +285,38 @@ CREATE TABLE IF NOT EXISTS manutencoes (
     custo_estimado DECIMAL(10,2),
     status VARCHAR(20) DEFAULT 'PENDENTE'
 );
--- Inserindo usuarios
+
+-- V2__seed_data.sql
+INSERT INTO users (name, email, password, cpf)
+SELECT 'Admin', 'admin@viagens.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '11111111111'
+WHERE NOT EXISTS (
+    SELECT 1 FROM users WHERE email = 'admin@viagens.com'
+);
 
 INSERT INTO users (name, email, password, cpf)
-VALUES
-    ('Umberto', 'umberto@teste.com', '123456', '11111111111'),
-    ('Doisberto', 'doisberto@teste.com', '123456', '22222222222');
+SELECT 'Umberto', 'umberto@teste.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '11111111111'
+WHERE NOT EXISTS (
+    SELECT 1 FROM users WHERE email = 'umberto@teste.com'
+);
+INSERT INTO users (name, email, password, cpf)
+SELECT 'Doisberto', 'doisberto@teste.com', '$2a$10$DXqSGnYLtFPR1rmuJ419euZJQzHyYfWPnVA9QRRddo0iPfqJD9q2O', '22222222222'
+WHERE NOT EXISTS (
+    SELECT 1 FROM users WHERE email = 'doisberto@teste.com'
+);
     
 -- Inserindo Veículos
-INSERT INTO veiculos (placa, modelo, tipo, ano) VALUES 
-('ABC-1234', 'Fiorino', 'LEVE', 2022),
-('XYZ-9876', 'Volvo FH', 'PESADO', 2021),
-('KJG-1122', 'Mercedes Sprinter', 'LEVE', 2020),
-('LMN-4455', 'Scania R500', 'PESADO', 2023);
+INSERT INTO veiculos (placa, modelo, tipo, ano)
+SELECT 'ABC-1234', 'Fiorino', 'LEVE', 2022
+WHERE NOT EXISTS (SELECT 1 FROM veiculos WHERE placa = 'ABC-1234');
+INSERT INTO veiculos (placa, modelo, tipo, ano)
+SELECT 'XYZ-9876', 'Volvo FH', 'PESADO', 2021
+WHERE NOT EXISTS (SELECT 1 FROM veiculos WHERE placa = 'XYZ-9876');
+INSERT INTO veiculos (placa, modelo, tipo, ano)
+SELECT 'KJG-1122', 'Mercedes Sprinter', 'LEVE', 2020
+WHERE NOT EXISTS (SELECT 1 FROM veiculos WHERE placa = 'KJG-1122');
+INSERT INTO veiculos (placa, modelo, tipo, ano)
+SELECT 'LMN-4455', 'Scania R500', 'PESADO', 2023
+WHERE NOT EXISTS (SELECT 1 FROM veiculos WHERE placa = 'LMN-4455');
 
 -- Inserindo Viagens (Para testar o Dashboard)
 INSERT INTO viagens (veiculo_id, data_saida, data_chegada, origem, destino, km_percorrida) VALUES 
@@ -266,7 +338,7 @@ INSERT INTO manutencoes (veiculo_id, data_inicio, data_finalizacao, tipo_servico
 
 ---
 
-## 4) Endpoints principais
+## 5) Endpoints principais
 
 ### Autenticação
 - `POST /auth` — login (e-mail ou CPF + senha), retorna JWT.
@@ -300,13 +372,13 @@ INSERT INTO manutencoes (veiculo_id, data_inicio, data_finalizacao, tipo_servico
 
 ---
 
-## 5) Demonstração
+## 6) Demonstração
 
 > 📸 Screenshots ou link de deploy: **[adicionar aqui]**
 
 ---
 
-## 6) Estrutura de pastas
+## 7) Estrutura de pastas
 
 ```text
 ProjetoViagem/
@@ -331,6 +403,8 @@ ProjetoViagem/
 │  │     └─ db/migration/V1__init.sql
 │  └─ test/
 ├─ frontend/
+│  ├─ Dockerfile
+│  ├─ nginx.conf
 │  ├─ package.json
 │  └─ src/
 │     ├─ pages/
