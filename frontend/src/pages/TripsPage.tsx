@@ -1,13 +1,36 @@
-import { Box, Button, Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  FormControl,
+  Grid,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+  Chip,
+  Alert,
+  Divider,
+} from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link as RouterLink } from 'react-router-dom';
+import {
+  AddRounded,
+  RouteRounded,
+  SearchRounded,
+  DirectionsCarFilledRounded,
+} from '@mui/icons-material';
 import { deleteTrip, fetchVehicles } from '../services/tripService';
 import { useTrips } from '../hooks/useTrips';
 import { TripTable } from '../components/trips/TripTable';
+import { TripFormModal } from '../components/trips/TripFormModal';
 import { Trip } from '../types/trip';
 import { useNotification } from '../hooks/useNotification';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { AppButton } from '../components/ui/AppButton';
 
 const defaultSize = 10;
 
@@ -19,6 +42,11 @@ export default function TripsPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [vehicleFilter, setVehicleFilter] = useState<string>('');
   const [tripToRemove, setTripToRemove] = useState<Trip | null>(null);
+
+  // Controle do modal de criação/edição
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [editingTripId, setEditingTripId] = useState<number | null>(null);
+
   const queryClient = useQueryClient();
   const notification = useNotification();
 
@@ -64,35 +92,110 @@ export default function TripsPage() {
     setTripToRemove(null);
   };
 
+  const handleOpenCreate = () => {
+    setEditingTripId(null);
+    setFormModalOpen(true);
+  };
+
+  const handleOpenEdit = (trip: Trip) => {
+    setEditingTripId(trip.id);
+    setFormModalOpen(true);
+  };
+
+  const handleCloseFormModal = () => {
+    setFormModalOpen(false);
+    setEditingTripId(null);
+  };
+
   const rows = data?.content ?? [];
   const total = data?.totalElements ?? 0;
 
   return (
     <Box>
-      <Grid container spacing={3} alignItems="center" sx={{ mb: 2 }}>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h5">Viagens</Typography>
-          <Typography color="text.secondary">Gerencie as rotas, atualize ou exclua viagens com facilidade.</Typography>
-        </Grid>
-        <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-          <Button component={RouterLink} to="/trips/new" variant="contained">
-            Nova viagem
-          </Button>
-        </Grid>
-      </Grid>
-      <Card>
-        <CardContent>
-          <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12} md={4}>
-              <TextField label="Pesquisar" fullWidth value={search} onChange={handleSearch} />
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={2}
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        justifyContent="space-between"
+        sx={{ mb: 3 }}
+      >
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Box
+            sx={{
+              display: 'grid',
+              placeItems: 'center',
+              width: 44,
+              height: 44,
+              borderRadius: 2,
+              bgcolor: 'primary.50',
+              color: 'primary.main',
+            }}
+          >
+            <RouteRounded />
+          </Box>
+          <Box>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="h5" fontWeight={700}>
+                Viagens
+              </Typography>
+              {!isLoading && !isError && (
+                <Chip
+                  size="small"
+                  label={`${total} ${total === 1 ? 'viagem' : 'viagens'}`}
+                  sx={{ bgcolor: 'action.hover', fontWeight: 600 }}
+                />
+              )}
+            </Stack>
+            <Typography color="text.secondary">
+              Gerencie as rotas, atualize ou exclua viagens com facilidade.
+            </Typography>
+          </Box>
+        </Stack>
+        <AppButton startIcon={<AddRounded />} onClick={handleOpenCreate} 
+         sx={{
+          width: 'auto !important',
+          minWidth: 'auto !important',
+          maxWidth: 'fit-content',
+          flex: '0 0 auto',
+          px: 2,
+          py: 1,
+          fontSize: '0.875rem',
+        }}>
+          Nova viagem
+        </AppButton>
+      </Stack>
+
+      <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Grid container spacing={2} sx={{ mb: 1 }}>
+            <Grid item xs={12} md={5}>
+              <TextField
+                label="Pesquisar por origem"
+                placeholder="Ex: São Paulo"
+                fullWidth
+                value={search}
+                onChange={handleSearch}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchRounded fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={5}>
               <FormControl fullWidth>
                 <InputLabel id="vehicle-filter-label">Filtrar por veículo</InputLabel>
                 <Select
                   labelId="vehicle-filter-label"
                   value={vehicleFilter}
                   label="Filtrar por veículo"
+                  startAdornment={
+                    <InputAdornment position="start" sx={{ ml: 1 }}>
+                      <DirectionsCarFilledRounded fontSize="small" color="action" />
+                    </InputAdornment>
+                  }
                   onChange={(event) => {
                     setVehicleFilter(event.target.value as string);
                     setPage(0);
@@ -108,32 +211,49 @@ export default function TripsPage() {
               </FormControl>
             </Grid>
           </Grid>
-          <TripTable
-            rows={rows}
-            loading={isLoading}
-            rowCount={total}
-            page={page}
-            pageSize={pageSize}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onPageChange={(newPage) => setPage(newPage)}
-            onPageSizeChange={(newSize) => {
-              setPageSize(newSize);
-              setPage(0);
-            }}
-            onSortChange={(field, direction) => {
-              setSortField(field);
-              setSortDirection(direction);
-            }}
-            onDelete={handleOpenDelete}
-          />
-          {isError && <Typography color="error">Não foi possível carregar as viagens.</Typography>}
+
+          <Divider sx={{ mb: 2 }} />
+
+          {isError ? (
+            <Alert severity="error" variant="outlined">
+              Não foi possível carregar as viagens. Tente novamente em instantes.
+            </Alert>
+          ) : (
+            <TripTable
+  rows={rows}
+  loading={isLoading}
+  rowCount={total}
+  page={page}
+  pageSize={pageSize}
+  sortField={sortField}
+  sortDirection={sortDirection}
+  onPageChange={(newPage) => setPage(newPage)}
+  onPageSizeChange={(newSize) => {
+    setPageSize(newSize);
+    setPage(0);
+  }}
+  onSortChange={(field, direction) => {
+    setSortField(field);
+    setSortDirection(direction);
+  }}
+  onEdit={handleOpenEdit}
+  onDelete={handleOpenDelete}
+/>
+          )}
         </CardContent>
       </Card>
+
+      <TripFormModal open={formModalOpen} tripId={editingTripId} onClose={handleCloseFormModal} />
+
       <ConfirmDialog
         open={Boolean(tripToRemove)}
-        title="Excluir viagem"
-        description="Tem certeza de que deseja excluir esta viagem? Esta ação não pode ser desfeita."
+        
+        title="Excluir esta viagem?"
+        description={
+          tripToRemove
+            ? `Você está prestes a excluir a viagem de ${tripToRemove.origem} para ${tripToRemove.destino}. Essa ação é permanente e não poderá ser desfeita.`
+            : 'Essa ação é permanente e não poderá ser desfeita.'
+        }
         onClose={handleCloseDelete}
         onConfirm={() => {
           if (tripToRemove) {

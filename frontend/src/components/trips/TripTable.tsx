@@ -2,7 +2,6 @@ import { Box, IconButton } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Link as RouterLink } from 'react-router-dom';
 import { Trip } from '../../types/trip';
 import { formatDateTime, formatKilometers } from '../../utils/format';
 
@@ -17,6 +16,7 @@ type TripTableProps = {
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
   onSortChange: (field: string, direction: 'asc' | 'desc') => void;
+  onEdit: (row: Trip) => void;
   onDelete: (row: Trip) => void;
 };
 
@@ -67,6 +67,7 @@ export function TripTable({
   onPageChange,
   onPageSizeChange,
   onSortChange,
+  onEdit,
   onDelete,
 }: TripTableProps) {
   const columns = columnDefinitions.map((column) =>
@@ -75,7 +76,7 @@ export function TripTable({
           ...column,
           renderCell: (params: GridRenderCellParams<Trip>) => (
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton component={RouterLink} to={`/trips/${params.row.id}/edit`} size="small" color="primary">
+              <IconButton onClick={() => onEdit(params.row)} size="small" color="primary">
                 <EditIcon />
               </IconButton>
               <IconButton onClick={() => onDelete(params.row)} size="small" color="error">

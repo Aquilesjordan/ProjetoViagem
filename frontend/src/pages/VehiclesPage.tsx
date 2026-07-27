@@ -13,8 +13,19 @@ import {
   IconButton,
   MenuItem,
   TextField,
+  Chip,
+  InputAdornment,
+  Alert,
 } from '@mui/material';
-import { AddRounded, CloseRounded, DirectionsCarFilledRounded } from '@mui/icons-material';
+import {
+  AddRounded,
+  CloseRounded,
+  DirectionsCarFilledRounded,
+  BadgeOutlined,
+  LocalShippingRounded,
+  CalendarTodayOutlined,
+  CategoryOutlined,
+} from '@mui/icons-material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
@@ -26,20 +37,7 @@ import { useNotification } from '../hooks/useNotification';
 import { AppButton } from '../components/ui/AppButton';
 import { FormTextField } from '../components/ui/FormTextField';
 
-const columns: GridColDef<Vehicle>[] = [
-  { field: 'placa', headerName: 'Placa', minWidth: 130, flex: 1 },
-  { field: 'model', headerName: 'Modelo', minWidth: 220, flex: 1 },
-  { field: 'tipo', headerName: 'Tipo', minWidth: 120, flex: 1 },
-  {
-    field: 'ano',
-    headerName: 'Ano',
-    minWidth: 100,
-    flex: 1,
-    valueGetter: (_value, row) => row.ano ?? '-',
-  },
-];
-
-const vehicleTypes = ['LEVE', 'PESADO' ];
+const vehicleTypes = ['LEVE', 'PESADO'] as const;
 
 const vehicleSchema = z.object({
   placa: z
@@ -57,6 +55,44 @@ const vehicleSchema = z.object({
 });
 
 type VehicleForm = z.infer<typeof vehicleSchema>;
+
+function TipoChip({ tipo }: { tipo: string }) {
+  const isPesado = tipo === 'PESADO';
+  return (
+    <Chip
+      size="small"
+      icon={<LocalShippingRounded sx={{ fontSize: 16 }} />}
+      label={isPesado ? 'Pesado' : 'Leve'}
+      sx={{
+        bgcolor: isPesado ? 'warning.50' : 'success.50',
+        color: isPesado ? 'warning.dark' : 'success.dark',
+        fontWeight: 600,
+        '& .MuiChip-icon': {
+          color: isPesado ? 'warning.dark' : 'success.dark',
+        },
+      }}
+    />
+  );
+}
+
+const columns: GridColDef<Vehicle>[] = [
+  { field: 'placa', headerName: 'Placa', minWidth: 130, flex: 1 },
+  { field: 'model', headerName: 'Modelo', minWidth: 220, flex: 1 },
+  {
+    field: 'tipo',
+    headerName: 'Tipo',
+    minWidth: 140,
+    flex: 1,
+    renderCell: (params) => <TipoChip tipo={params.value as string} />,
+  },
+  {
+    field: 'ano',
+    headerName: 'Ano',
+    minWidth: 100,
+    flex: 1,
+    valueGetter: (_value, row) => row.ano ?? '-',
+  },
+];
 
 function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const notification = useNotification();
@@ -98,8 +134,8 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
             sx={{
               display: 'grid',
               placeItems: 'center',
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               borderRadius: 2,
               bgcolor: 'primary.50',
               color: 'primary.main',
@@ -130,8 +166,27 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
               label="Placa"
               placeholder="ABC1D23"
               autoFocus
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <BadgeOutlined fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              }}
             />
-            <FormTextField<VehicleForm> name="model" control={control} label="Modelo" placeholder="Ex: Mercedes-Benz O500" />
+            <FormTextField<VehicleForm>
+              name="model"
+              control={control}
+              label="Modelo"
+              placeholder="Ex: Mercedes-Benz O500"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <DirectionsCarFilledRounded fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
@@ -146,10 +201,17 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
                       error={!!fieldState.error}
                       helperText={fieldState.error?.message}
                       fullWidth
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CategoryOutlined fontSize="small" color="action" />
+                          </InputAdornment>
+                        ),
+                      }}
                     >
                       {vehicleTypes.map((tipo) => (
                         <MenuItem key={tipo} value={tipo}>
-                          {tipo}
+                          {tipo === 'PESADO' ? 'Pesado' : 'Leve'}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -163,6 +225,13 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
                   label="Ano"
                   placeholder="2024"
                   inputMode="numeric"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarTodayOutlined fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
             </Grid>
@@ -182,6 +251,44 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
   );
 }
 
+function EmptyState({ onAdd }: { onAdd: () => void }) {
+  return (
+    <Box
+      sx={{
+        height: 400,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1.5,
+        color: 'text.secondary',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'grid',
+          placeItems: 'center',
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          bgcolor: 'action.hover',
+        }}
+      >
+        <DirectionsCarFilledRounded sx={{ fontSize: 28 }} />
+      </Box>
+      <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+        Nenhum veículo cadastrado
+      </Typography>
+      <Typography variant="body2" sx={{ maxWidth: 320, textAlign: 'center' }}>
+        Cadastre o primeiro veículo da frota para começar a acompanhar viagens e manutenções.
+      </Typography>
+      <AppButton startIcon={<AddRounded />} onClick={onAdd} sx={{ mt: 1, }}>
+        Novo veículo
+      </AppButton>
+    </Box>
+  );
+}
+
 export default function VehiclesPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -189,6 +296,8 @@ export default function VehiclesPage() {
     queryKey: ['vehicles'],
     queryFn: fetchVeiculos,
   });
+
+  const vehicles = data ?? [];
 
   return (
     <Box>
@@ -199,42 +308,91 @@ export default function VehiclesPage() {
         justifyContent="space-between"
         sx={{ mb: 3 }}
       >
-        <Box>
-          <Typography variant="h5" fontWeight={700}>
-            Veículos
-          </Typography>
-          <Typography color="text.secondary">Lista de veículos cadastrados.</Typography>
-        </Box>
-        <AppButton startIcon={<AddRounded />} onClick={() => setModalOpen(true)}>
-          Novo veículo
-        </AppButton>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Box
+            sx={{
+              display: 'grid',
+              placeItems: 'center',
+              width: 44,
+              height: 44,
+              borderRadius: 2,
+              bgcolor: 'primary.50',
+              color: 'primary.main',
+            }}
+          >
+            <DirectionsCarFilledRounded />
+          </Box>
+          <Box>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="h5" fontWeight={700}>
+                Veículos
+              </Typography>
+              {!isLoading && !isError && (
+                <Chip
+                  size="small"
+                  label={`${vehicles.length} ${vehicles.length === 1 ? 'veículo' : 'veículos'}`}
+                  sx={{ bgcolor: 'action.hover', fontWeight: 600 }}
+                />
+              )}
+            </Stack>
+            <Typography color="text.secondary">Lista de veículos cadastrados.</Typography>
+          </Box>
+        </Stack>
+      <AppButton
+        startIcon={<AddRounded />}
+        onClick={() => setModalOpen(true)}
+        sx={{
+          width: 'auto !important',
+          minWidth: 'auto !important',
+          maxWidth: 'fit-content',
+          flex: '0 0 auto',
+          px: 2,
+          py: 1,
+          fontSize: '0.875rem',
+        }}
+      >
+        Novo veículo
+      </AppButton>
       </Stack>
 
-      <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
-        <CardContent>
-          <Box sx={{ height: 620, width: '100%' }}>
-            <DataGrid
-              rows={data ?? []}
-              columns={columns}
-              loading={isLoading}
-              disableRowSelectionOnClick
-              getRowId={(row) => row.id}
-              pageSizeOptions={[10, 20, 50]}
-              initialState={{
-                pagination: {
-                  paginationModel: { pageSize: 10, page: 0 },
-                },
-              }}
-              sx={{ border: 'none' }}
-            />
-          </Box>
-          {isError && (
-            <Typography color="error" sx={{ mt: 2 }}>
-              Não foi possível carregar os veículos.
-            </Typography>
-          )}
-        </CardContent>
-      </Card>
+      {isError ? (
+        <Alert severity="error" variant="outlined">
+          Não foi possível carregar os veículos. Tente novamente em instantes.
+        </Alert>
+      ) : (
+        <Card elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3 }}>
+          <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+            <Box sx={{ height: 620, width: '100%' }}>
+              {!isLoading && vehicles.length === 0 ? (
+                <EmptyState onAdd={() => setModalOpen(true)} />
+              ) : (
+                <DataGrid
+                  rows={vehicles}
+                  columns={columns}
+                  loading={isLoading}
+                  disableRowSelectionOnClick
+                  getRowId={(row) => row.id}
+                  pageSizeOptions={[10, 20, 50]}
+                  initialState={{
+                    pagination: {
+                      paginationModel: { pageSize: 10, page: 0 },
+                    },
+                  }}
+                  sx={{
+                    border: 'none',
+                    '& .MuiDataGrid-columnHeaders': {
+                      bgcolor: 'action.hover',
+                      borderRadius: 2,
+                    },
+                    '& .MuiDataGrid-cell:focus': { outline: 'none' },
+                    '& .MuiDataGrid-row:hover': { bgcolor: 'action.hover' },
+                  }}
+                />
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+      )}
 
       <AddVehicleModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </Box>

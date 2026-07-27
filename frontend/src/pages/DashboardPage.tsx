@@ -6,7 +6,6 @@ import {
   Box,
   Skeleton,
   Stack,
-  Chip,
   Alert,
   AlertTitle,
   Button,
@@ -40,7 +39,7 @@ function ChartCard({
   icon: Icon,
   children,
 }: {
-  title: string; 
+  title: string;
   icon: React.ElementType;
   children: React.ReactNode;
 }) {
@@ -164,21 +163,40 @@ export default function DashboardPage() {
 
         <Grid item xs={12} md={6}>
           <ChartCard title="Viagens por tipo de veículo" icon={BarChartRounded}>
-            <Box sx={{ width: '100%', height: 320 }}>
-              <ResponsiveContainer>
-                <BarChart data={data.viagensPorTipoVeiculo} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
-                  <XAxis dataKey="tipo" tickLine={false} axisLine={false} fontSize={12} />
-                  <YAxis tickLine={false} axisLine={false} fontSize={12} width={40} />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(63,81,181,0.06)' }}
-                    contentStyle={{ borderRadius: 8, border: '1px solid #eee' }}
-                  />
-                  <Legend />
-                  <Bar dataKey="quantidadeViagens" fill="#3f51b5" radius={[6, 6, 0, 0]} maxBarSize={48} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Box>
+            {data.viagensPorTipoVeiculo.length === 0 ? (
+              <Box
+                sx={{
+                  height: 320,
+                  display: 'grid',
+                  placeItems: 'center',
+                  color: 'text.secondary',
+                }}
+              >
+                <Typography variant="body2">Sem viagens registradas ainda.</Typography>
+              </Box>
+            ) : (
+              <Box sx={{ width: '100%', height: 320 }}>
+                <ResponsiveContainer>
+                  <BarChart data={data.viagensPorTipoVeiculo} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
+                    <XAxis dataKey="tipo" tickLine={false} axisLine={false} fontSize={12} />
+                    <YAxis tickLine={false} axisLine={false} fontSize={12} width={40} allowDecimals={false} />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(63,81,181,0.06)' }}
+                      contentStyle={{ borderRadius: 8, border: '1px solid #eee' }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="quantidadeViagens"
+                      name="Quantidade de viagens"
+                      fill="#3f51b5"
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={48}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Box>
+            )}
           </ChartCard>
         </Grid>
 
@@ -206,7 +224,7 @@ export default function DashboardPage() {
                       formatter={(value: number) => `${value.toLocaleString('pt-BR')} km`}
                       contentStyle={{ borderRadius: 8, border: '1px solid #eee' }}
                     />
-                    <Bar dataKey="totalKm" fill="#4caf50" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                    <Bar dataKey="totalKm" name="Quilômetros" fill="#4caf50" radius={[6, 6, 0, 0]} maxBarSize={48} />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>

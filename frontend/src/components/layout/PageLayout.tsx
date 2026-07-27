@@ -1,4 +1,4 @@
-import { Box, Toolbar, Breadcrumbs, Link as MuiLink, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Link as MuiLink, Typography } from '@mui/material';
 import { Outlet, Link as RouterLink, useLocation } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { Header } from './Header';
@@ -10,7 +10,6 @@ const breadcrumbsMap: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/veiculos': 'Veículos',
   '/trips': 'Viagens',
-  '/trips/new': 'Cadastro de Viagem',
   '/manutencoes': 'Manutenções',
 };
 
@@ -27,7 +26,6 @@ export default function PageLayout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <Box sx={{ flexGrow: 1, ml: { md: `${drawerWidth}px` } }}>
         <Header onToggleSidebar={() => setSidebarOpen((state) => !state)} />
-        <Toolbar />
         <Box sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 } }}>
           <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
             <MuiLink component={RouterLink} underline="hover" color="inherit" to="/dashboard">
