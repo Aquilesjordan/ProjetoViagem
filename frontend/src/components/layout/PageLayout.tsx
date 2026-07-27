@@ -8,8 +8,10 @@ const drawerWidth = 280;
 
 const breadcrumbsMap: Record<string, string> = {
   '/dashboard': 'Dashboard',
+  '/veiculos': 'Veículos',
   '/trips': 'Viagens',
   '/trips/new': 'Cadastro de Viagem',
+  '/manutencoes': 'Manutenções',
 };
 
 export default function PageLayout() {

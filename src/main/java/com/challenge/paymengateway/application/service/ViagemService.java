@@ -1,6 +1,7 @@
 package com.challenge.viagensbackend.application.service;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -28,7 +29,7 @@ public class ViagemService {
 
     @Transactional
     public ViagemResponseDTO createTravel(ViagemRequestDTO dto) {
-        Vehicle vehicle = vehicleService.getVehicle(dto.vehicleId());
+        Vehicle vehicle = vehicleService.getVehicle(dto.veiculoId());
         Viagem viagem = mapToEntity(dto, vehicle);
         Viagem saved = viagemRepository.save(viagem);
         return toDto(saved);
@@ -39,19 +40,22 @@ public class ViagemService {
         Viagem existing = viagemRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Viagem não encontrada"));
 
-        Vehicle vehicle = vehicleService.getVehicle(dto.vehicleId());
+        Vehicle vehicle = vehicleService.getVehicle(dto.veiculoId());
         existing.setVehicle(vehicle);
-        existing.setDepartureTime(dto.departureTime());
-        existing.setArrivalTime(dto.arrivalTime());
-        existing.setOriginCity(dto.originCity());
-        existing.setDestinationCity(dto.destinationCity());
-        existing.setDistanceKm(dto.distanceKm());
+        existing.setDataSaida(dto.dataSaida());
+        existing.setDataChegada(dto.dataChegada());
+        existing.setOrigem(dto.origem());
+        existing.setDestino(dto.destino());
+        existing.setKmPercorrida(BigDecimal.valueOf(dto.kmPercorrida()));
 
         Viagem updated = viagemRepository.save(existing);
         return toDto(updated);
     }
 
     public void deleteTravel(Integer id) {
+        if (!viagemRepository.existsById(id)) {
+            throw new IllegalArgumentException("Viagem não encontrada");
+        }
         viagemRepository.deleteById(id);
     }
 
@@ -88,11 +92,11 @@ public class ViagemService {
     private Viagem mapToEntity(ViagemRequestDTO dto, Vehicle vehicle) {
         Viagem viagem = new Viagem();
         viagem.setVehicle(vehicle);
-        viagem.setDepartureTime(dto.departureTime());
-        viagem.setArrivalTime(dto.arrivalTime());
-        viagem.setOriginCity(dto.originCity());
-        viagem.setDestinationCity(dto.destinationCity());
-        viagem.setDistanceKm(dto.distanceKm());
+        viagem.setDataSaida(dto.dataSaida());
+        viagem.setDataChegada(dto.dataChegada());
+        viagem.setOrigem(dto.origem());
+        viagem.setDestino(dto.destino());
+        viagem.setKmPercorrida(BigDecimal.valueOf(dto.kmPercorrida()));
         return viagem;
     }
 
@@ -100,13 +104,13 @@ public class ViagemService {
         return new ViagemResponseDTO(
                 viagem.getId(),
                 viagem.getVehicle().getId(),
-                viagem.getVehicle().getPlate(),
+                viagem.getVehicle().getPlaca(),
                 viagem.getVehicle().getModel(),
-                viagem.getVehicle().getCategory(),
-                viagem.getDepartureTime(),
-                viagem.getArrivalTime(),
-                viagem.getOriginCity(),
-                viagem.getDestinationCity(),
-                viagem.getDistanceKm());
+                viagem.getVehicle().getTipo(),
+                viagem.getDataSaida(),
+                viagem.getDataChegada(),
+                viagem.getOrigem(),
+                viagem.getDestino(),
+                viagem.getKmPercorrida() == null ? null : viagem.getKmPercorrida().doubleValue());
     }
 }

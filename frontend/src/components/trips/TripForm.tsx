@@ -5,20 +5,20 @@ import { z } from 'zod';
 import { AppButton } from '../ui/AppButton';
 import { FormSelect } from '../ui/FormSelect';
 import { FormTextField } from '../ui/FormTextField';
-import type { Vehicle, TripPayload } from '../../types/trip';
+import type { Vehicle } from '../../types/trip';
 
 const schema = z.object({
-  vehicleId: z.string().min(1, 'Selecione um veículo'),
-  origin: z.string().min(2, 'Informe a cidade de origem'),
-  destination: z.string().min(2, 'Informe a cidade de destino'),
-  departureDate: z.string().min(1, 'Informe a data e hora de saída'),
-  arrivalDate: z.string().min(1, 'Informe a data e hora de chegada'),
-  kilometers: z.number().positive('Informe a quilometragem válida'),
+  veiculoId: z.coerce.number().min(1, 'Selecione um veículo'),
+  origem: z.string().min(2, 'Informe a cidade de origem'),
+  destino: z.string().min(2, 'Informe a cidade de destino'),
+  dataSaida: z.string().min(1, 'Informe a data e hora de saída'),
+  dataChegada: z.string().optional(),
+  kmPercorrida: z.number().positive('Informe a quilometragem válida'),
 }).superRefine((values, ctx) => {
-  if (values.departureDate && values.arrivalDate && values.departureDate >= values.arrivalDate) {
+  if (values.dataSaida && values.dataChegada && values.dataSaida >= values.dataChegada) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      path: ['arrivalDate'],
+      path: ['dataChegada'],
       message: 'A data de chegada deve ser posterior à saída',
     });
   }
@@ -34,36 +34,34 @@ type TripFormProps = {
 };
 
 export function TripForm({ defaultValues, vehicles, onSubmit, isSubmitting }: TripFormProps) {
-  const { handleSubmit, control, watch } = useForm<FormValues>({
+  const { handleSubmit, control } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      vehicleId: defaultValues?.vehicleId ?? '',
-      origin: defaultValues?.origin ?? '',
-      destination: defaultValues?.destination ?? '',
-      departureDate: defaultValues?.departureDate ?? '',
-      arrivalDate: defaultValues?.arrivalDate ?? '',
-      kilometers: defaultValues?.kilometers ?? 0,
+      veiculoId: defaultValues?.veiculoId ?? 0,
+      origem: defaultValues?.origem ?? '',
+      destino: defaultValues?.destino ?? '',
+      dataSaida: defaultValues?.dataSaida ?? '',
+      dataChegada: defaultValues?.dataChegada ?? '',
+      kmPercorrida: defaultValues?.kmPercorrida ?? 0,
     },
   });
-
-  const watchDeparture = watch('departureDate');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <FormSelect<FormValues>
-            name="vehicleId"
+            name="veiculoId"
             control={control}
             label="Veículo"
-            options={vehicles.map((vehicle) => ({ label: vehicle.name, value: vehicle.id }))}
+            options={vehicles.map((vehicle) => ({ label: `${vehicle.model} (${vehicle.placa})`, value: vehicle.id }))}
           />
         </Grid>
         <Grid item xs={12} md={6}>
           <Controller
-            name="kilometers"
+            name="kmPercorrida"
             control={control}
-            defaultValue={defaultValues?.kilometers ?? 0}
+            defaultValue={defaultValues?.kmPercorrida ?? 0}
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
@@ -79,16 +77,16 @@ export function TripForm({ defaultValues, vehicles, onSubmit, isSubmitting }: Tr
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <FormTextField<FormValues> name="origin" control={control} label="Cidade de origem" />
+          <FormTextField<FormValues> name="origem" control={control} label="Cidade de origem" />
         </Grid>
         <Grid item xs={12} md={6}>
-          <FormTextField<FormValues> name="destination" control={control} label="Cidade de destino" />
+          <FormTextField<FormValues> name="destino" control={control} label="Cidade de destino" />
         </Grid>
         <Grid item xs={12} md={6}>
-          <FormTextField<FormValues> name="departureDate" control={control} label="Data/Hora de saída" type="datetime-local" InputLabelProps={{ shrink: true }} />
+          <FormTextField<FormValues> name="dataSaida" control={control} label="Data/Hora de saída" type="datetime-local" InputLabelProps={{ shrink: true }} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <FormTextField<FormValues> name="arrivalDate" control={control} label="Data/Hora de chegada" type="datetime-local" InputLabelProps={{ shrink: true }} />
+          <FormTextField<FormValues> name="dataChegada" control={control} label="Data/Hora de chegada" type="datetime-local" InputLabelProps={{ shrink: true }} />
         </Grid>
         <Grid item xs={12}>
           <Stack direction="row" justifyContent="flex-end" spacing={2}>

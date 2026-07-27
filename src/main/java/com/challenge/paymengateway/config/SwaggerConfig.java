@@ -1,16 +1,15 @@
 package com.challenge.viagensbackend.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.In;
 import io.swagger.v3.oas.models.security.SecurityScheme.Type;
-
 
 @Configuration
 public class SwaggerConfig {
@@ -19,6 +18,7 @@ public class SwaggerConfig {
     @Bean
     OpenAPI customOpenAPI() {
         return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName)) 
                 .components(new io.swagger.v3.oas.models.Components()
                     .addSecuritySchemes(securitySchemeName,
                         new SecurityScheme()
@@ -27,7 +27,7 @@ public class SwaggerConfig {
                             .scheme("bearer")
                             .bearerFormat("JWT")
                             .in(In.HEADER)
-                            .description("Token no header: **Bearer {seu_token}**")))
+                            .description("Token no header: ** {seu_token}**")))
                 .info(new Info()
                         .title("ViagensBackEnd API")
                         .version("v1.0")

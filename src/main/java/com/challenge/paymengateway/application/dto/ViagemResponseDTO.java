@@ -6,13 +6,13 @@ import com.challenge.viagensbackend.application.model.VehicleCategory;
 
 public record ViagemResponseDTO(
         Integer id,
-        Integer vehicleId,
-        String vehiclePlate,
-        String vehicleModel,
-        VehicleCategory vehicleCategory,
-        LocalDateTime departureTime,
-        LocalDateTime arrivalTime,
-        String originCity,
-        String destinationCity,
-        Double distanceKm) {
+        Integer veiculoId,
+        String veiculoPlaca,
+        String veiculoModelo,
+        VehicleCategory veiculoTipo,
+        LocalDateTime dataSaida,
+        LocalDateTime dataChegada,
+        String origem,
+        String destino,
+        Double kmPercorrida) {
 }

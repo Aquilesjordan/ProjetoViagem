@@ -8,15 +8,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record ViagemRequestDTO(
-        @NotNull(message = "Veículo é obrigatório") Integer vehicleId,
-        @NotNull(message = "Data/hora de saída é obrigatória") LocalDateTime departureTime,
-        @NotNull(message = "Data/hora de chegada é obrigatória") LocalDateTime arrivalTime,
-        @NotBlank(message = "Cidade de origem é obrigatória") String originCity,
-        @NotBlank(message = "Cidade de destino é obrigatória") String destinationCity,
-        @NotNull(message = "Quilometragem é obrigatória") @Positive(message = "Quilometragem deve ser positiva") Double distanceKm) {
+        @NotNull(message = "Veículo é obrigatório") Integer veiculoId,
+        @NotNull(message = "Data/hora de saída é obrigatória") LocalDateTime dataSaida,
+        LocalDateTime dataChegada,
+        @NotBlank(message = "Cidade de origem é obrigatória") String origem,
+        @NotBlank(message = "Cidade de destino é obrigatória") String destino,
+        @NotNull(message = "Quilometragem é obrigatória") @Positive(message = "Quilometragem deve ser positiva") Double kmPercorrida) {
 
     @AssertTrue(message = "A chegada deve ser posterior à saída")
     public boolean isArrivalAfterDepartureValid() {
-        return departureTime == null || arrivalTime == null || arrivalTime.isAfter(departureTime);
+        return dataSaida == null || dataChegada == null || dataChegada.isAfter(dataSaida);
     }
 }

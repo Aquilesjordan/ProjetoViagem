@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.challenge.viagensbackend.application.model.Vehicle;
 
 @Repository
-public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
+public interface VeiculoRepository extends JpaRepository<Vehicle, Integer> {
+    boolean existsByPlaca(String placa);
 }

@@ -10,22 +10,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "VEHICLES")
+@Table(name = "veiculos")
 public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true)
-    private String plate;
+    @Column(name = "placa", nullable = false, unique = true, length = 10)
+    private String placa;
 
-    @Column(nullable = false)
+    @Column(name = "modelo", nullable = false, length = 50)
     private String model;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VehicleCategory category;
+    @Column(name = "tipo", nullable = false, length = 20)
+    private VehicleCategory tipo;
+
+    @Column(name = "ano")
+    private Integer ano;
 
     public Integer getId() {
         return id;
@@ -35,12 +38,12 @@ public class Vehicle {
         this.id = id;
     }
 
-    public String getPlate() {
-        return plate;
+    public String getPlaca() {
+        return placa;
     }
 
-    public void setPlate(String plate) {
-        this.plate = plate;
+    public void setPlaca(String placa) {
+        this.placa = placa;
     }
 
     public String getModel() {
@@ -51,11 +54,19 @@ public class Vehicle {
         this.model = model;
     }
 
-    public VehicleCategory getCategory() {
-        return category;
+    public VehicleCategory getTipo() {
+        return tipo;
     }
 
-    public void setCategory(VehicleCategory category) {
-        this.category = category;
+    public void setTipo(VehicleCategory tipo) {
+        this.tipo = tipo;
+    }
+
+    public Integer getAno() {
+        return ano;
+    }
+
+    public void setAno(Integer ano) {
+        this.ano = ano;
     }
 }

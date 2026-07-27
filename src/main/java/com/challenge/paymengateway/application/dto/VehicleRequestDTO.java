@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import com.challenge.viagensbackend.application.model.VehicleCategory;
 
 public record VehicleRequestDTO(
-        @NotBlank(message = "Placa é obrigatória") String plate,
+        @NotBlank(message = "Placa é obrigatória") String placa,
         @NotBlank(message = "Modelo é obrigatório") String model,
-        @NotNull(message = "Categoria é obrigatória") VehicleCategory category) {
+        @NotNull(message = "Tipo é obrigatório") VehicleCategory tipo,
+        Integer ano) {
 }

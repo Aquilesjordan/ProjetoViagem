@@ -14,23 +14,30 @@ export default function TripFormPage() {
   const queryClient = useQueryClient();
   const notification = useNotification();
 
-  const isEditMode = Boolean(id);
+  const parsedTripId = id ? Number(id) : NaN;
+  const tripId = Number.isNaN(parsedTripId) ? null : parsedTripId;
+  const isEditMode = tripId !== null;
 
-  const { data: trip, isLoading: loadingTrip } = useQuery(['trip', id], () => fetchTrip(id as string), {
+  const { data: trip, isLoading: loadingTrip } = useQuery({
+    queryKey: ['trip', tripId],
+    queryFn: () => fetchTrip(tripId as number),
     enabled: isEditMode,
   });
 
-  const { data: vehicles, isLoading: loadingVehicles } = useQuery(['vehicles'], fetchVehicles);
+  const { data: vehicles, isLoading: loadingVehicles } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: fetchVehicles,
+  });
 
   const mutation = useMutation({
-    mutationFn: (payload: { id?: string; values: TripPayload }) => {
-      if (isEditMode && id) {
-        return updateTrip(id, payload.values);
+    mutationFn: (payload: { id?: number; values: TripPayload }) => {
+      if (isEditMode && tripId) {
+        return updateTrip(tripId, payload.values);
       }
       return createTrip(payload.values);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['trips']);
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
       notification.showNotification('Viagem salva com sucesso', 'success');
       navigate('/trips');
     },
@@ -42,12 +49,12 @@ export default function TripFormPage() {
   const defaultValues = useMemo(() => {
     if (!trip) return undefined;
     return {
-      vehicleId: trip.vehicleId,
-      origin: trip.origin,
-      destination: trip.destination,
-      departureDate: toLocalDateTime(trip.departureDate),
-      arrivalDate: toLocalDateTime(trip.arrivalDate),
-      kilometers: trip.kilometers,
+      veiculoId: trip.veiculoId,
+      origem: trip.origem,
+      destino: trip.destino,
+      dataSaida: toLocalDateTime(trip.dataSaida),
+      dataChegada: trip.dataChegada ? toLocalDateTime(trip.dataChegada) : '',
+      kmPercorrida: trip.kmPercorrida,
     };
   }, [trip]);
 
@@ -69,15 +76,14 @@ export default function TripFormPage() {
           <TripForm
             defaultValues={defaultValues}
             vehicles={vehicles ?? []}
-            isSubmitting={mutation.isLoading}
+            isSubmitting={mutation.isPending}
             onSubmit={async (values) => {
               const payload: TripPayload = {
                 ...values,
-                departureDate: values.departureDate,
-                arrivalDate: values.arrivalDate,
+                dataChegada: values.dataChegada ? values.dataChegada : null,
               };
 
-              await mutation.mutateAsync({ id, values: payload });
+              await mutation.mutateAsync({ id: tripId ?? undefined, values: payload });
             }}
           />
         </Box>

@@ -13,8 +13,26 @@ export function formatDateTime(value: string) {
   });
 }
 
+export function formatDate(value: string | null) {
+  if (!value) {
+    return '-';
+  }
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString('pt-BR');
+}
+
 export function formatKilometers(value: number) {
   return `${value.toLocaleString('pt-BR')} km`;
+}
+
+export function formatCurrency(value: number) {
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
 }
 
 export function toLocalDateTime(value: string) {

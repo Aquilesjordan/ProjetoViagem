@@ -1,5 +1,5 @@
 import { Box, IconButton } from '@mui/material';
-import { DataGrid, GridColDef, GridSortModel, GridValueGetterParams, GridRenderCellParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link as RouterLink } from 'react-router-dom';
@@ -20,30 +20,30 @@ type TripTableProps = {
   onDelete: (row: Trip) => void;
 };
 
-const columnDefinitions: GridColDef[] = [
-  { field: 'vehicle', headerName: 'Veículo', flex: 1, minWidth: 150 },
-  { field: 'origin', headerName: 'Origem', flex: 1, minWidth: 120 },
-  { field: 'destination', headerName: 'Destino', flex: 1, minWidth: 120 },
+const columnDefinitions: GridColDef<Trip>[] = [
+  { field: 'veiculoModelo', headerName: 'Veículo', flex: 1, minWidth: 180 },
+  { field: 'veiculoPlaca', headerName: 'Placa', flex: 1, minWidth: 120 },
+  { field: 'origem', headerName: 'Origem', flex: 1, minWidth: 140 },
+  { field: 'destino', headerName: 'Destino', flex: 1, minWidth: 140 },
   {
-    field: 'departureDate',
-    headerName: 'Saída',
+    field: 'dataSaida',
+    headerName: 'Data de saída',
     flex: 1,
     minWidth: 170,
-    valueGetter: (params: GridValueGetterParams) => formatDateTime(params.value as string),
+    valueGetter: (_value, row) => formatDateTime(row.dataSaida),
   },
   {
-    field: 'arrivalDate',
-    headerName: 'Chegada',
+    field: 'dataChegada',
+    headerName: 'Data de chegada',
     flex: 1,
     minWidth: 170,
-    valueGetter: (params: GridValueGetterParams) => formatDateTime(params.value as string),
+    valueGetter: (_value, row) => (row.dataChegada ? formatDateTime(row.dataChegada) : '-'),
   },
   {
-    field: 'kilometers',
-    headerName: 'KM',
-    type: 'number',
-    minWidth: 100,
-    valueGetter: (params: GridValueGetterParams) => formatKilometers(Number(params.value)),
+    field: 'kmPercorrida',
+    headerName: 'KM percorrida',
+    minWidth: 140,
+    valueGetter: (_value, row) => formatKilometers(row.kmPercorrida),
   },
   {
     field: 'actions',
@@ -69,24 +69,23 @@ export function TripTable({
   onSortChange,
   onDelete,
 }: TripTableProps) {
-  const columns = columnDefinitions.map((column) => {
-    if (column.field === 'actions') {
-      return {
-        ...column,
-        renderCell: (params: GridRenderCellParams<Trip>) => (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <IconButton component={RouterLink} to={`/trips/${params.row.id}/edit`} size="small" color="primary">
-              <EditIcon />
-            </IconButton>
-            <IconButton onClick={() => onDelete(params.row)} size="small" color="error">
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        ),
-      };
-    }
-    return column;
-  });
+  const columns = columnDefinitions.map((column) =>
+    column.field === 'actions'
+      ? {
+          ...column,
+          renderCell: (params: GridRenderCellParams<Trip>) => (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton component={RouterLink} to={`/trips/${params.row.id}/edit`} size="small" color="primary">
+                <EditIcon />
+              </IconButton>
+              <IconButton onClick={() => onDelete(params.row)} size="small" color="error">
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ),
+        }
+      : column
+  );
 
   const sortModel: GridSortModel = [{ field: sortField, sort: sortDirection }];
 
@@ -97,20 +96,24 @@ export function TripTable({
         columns={columns}
         loading={loading}
         rowCount={rowCount}
-        pagination
         paginationMode="server"
         sortingMode="server"
-        page={page}
-        pageSize={pageSize}
-        rowsPerPageOptions={[5, 10, 20, 50]}
-        onPageChange={onPageChange}
-        onPageSizeChange={onPageSizeChange}
+        paginationModel={{ page, pageSize }}
+        pageSizeOptions={[5, 10, 20, 50]}
+        onPaginationModelChange={(model) => {
+          if (model.page !== page) {
+            onPageChange(model.page);
+          }
+          if (model.pageSize !== pageSize) {
+            onPageSizeChange(model.pageSize);
+          }
+        }}
         onSortModelChange={(newModel) => {
           if (newModel[0]?.field && newModel[0]?.sort) {
             onSortChange(newModel[0].field, newModel[0].sort);
           }
         }}
-        disableSelectionOnClick
+        disableRowSelectionOnClick
         getRowId={(row) => row.id}
         sortModel={sortModel}
       />

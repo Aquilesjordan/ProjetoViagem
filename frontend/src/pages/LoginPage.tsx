@@ -94,7 +94,7 @@ export default function LoginPage() {
         <Stack direction="row" spacing={1.5} alignItems="center" sx={{ zIndex: 1 }}>
           <DirectionsBusFilledRounded sx={{ fontSize: 32 }} />
           <Typography variant="h6" fontWeight={700}>
-            Viagens
+            LogiTrack
           </Typography>
         </Stack>
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
         </Box>
 
         <Typography variant="caption" sx={{ opacity: 0.6, zIndex: 1 }}>
-          © {new Date().getFullYear()} Viagens. Todos os direitos reservados.
+          © {new Date().getFullYear()} LogiTrack. Todos os direitos reservados.
         </Typography>
       </Box>
 
@@ -143,7 +143,7 @@ export default function LoginPage() {
               >
                 <DirectionsBusFilledRounded />
                 <Typography variant="subtitle1" fontWeight={700}>
-                  Viagens
+                  LogiTrack
                 </Typography>
               </Stack>
 

@@ -4,7 +4,8 @@ import com.challenge.viagensbackend.application.model.VehicleCategory;
 
 public record VehicleResponseDTO(
         Integer id,
-        String plate,
+        String placa,
         String model,
-        VehicleCategory category) {
+        VehicleCategory tipo,
+        Integer ano) {
 }

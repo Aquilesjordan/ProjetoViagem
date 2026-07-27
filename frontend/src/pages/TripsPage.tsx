@@ -15,23 +15,25 @@ export default function TripsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(defaultSize);
-  const [sortField, setSortField] = useState('departureDate');
+  const [sortField, setSortField] = useState('dataSaida');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [vehicleFilter, setVehicleFilter] = useState<string>('');
   const [tripToRemove, setTripToRemove] = useState<Trip | null>(null);
   const queryClient = useQueryClient();
   const notification = useNotification();
 
-  const { data: vehicles } = useQuery(['vehicles'], fetchVehicles);
+  const { data: vehicles } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: fetchVehicles,
+  });
 
   const queryParams = useMemo(
     () => ({
-      page: page + 1,
+      page,
       size: pageSize,
-      search: search || undefined,
-      vehicleId: vehicleFilter || undefined,
-      sort: sortField,
-      direction: sortDirection,
+      originCity: search || undefined,
+      vehicleId: vehicleFilter ? Number(vehicleFilter) : undefined,
+      sort: `${sortField},${sortDirection}`,
     }),
     [page, pageSize, search, sortField, sortDirection, vehicleFilter]
   );
@@ -39,9 +41,9 @@ export default function TripsPage() {
   const { data, isLoading, isError } = useTrips(queryParams);
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteTrip(id),
+    mutationFn: (id: number) => deleteTrip(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['trips']);
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
       notification.showNotification('Viagem removida com sucesso', 'success');
     },
     onError: () => {
@@ -62,8 +64,8 @@ export default function TripsPage() {
     setTripToRemove(null);
   };
 
-  const rows = data?.items ?? [];
-  const total = data?.total ?? 0;
+  const rows = data?.content ?? [];
+  const total = data?.totalElements ?? 0;
 
   return (
     <Box>
@@ -99,7 +101,7 @@ export default function TripsPage() {
                   <MenuItem value="">Todos</MenuItem>
                   {(vehicles ?? []).map((vehicle) => (
                     <MenuItem key={vehicle.id} value={vehicle.id}>
-                      {vehicle.name}
+                      {vehicle.model} ({vehicle.placa})
                     </MenuItem>
                   ))}
                 </Select>

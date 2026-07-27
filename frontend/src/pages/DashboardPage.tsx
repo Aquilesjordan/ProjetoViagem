@@ -21,9 +21,6 @@ import {
 } from '@mui/icons-material';
 import {
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   Tooltip,
   BarChart,
   Bar,
@@ -34,8 +31,8 @@ import {
 } from 'recharts';
 import { useDashboard } from '../hooks/useDashboard';
 import { StatCard } from '../components/ui/StatCard';
+import { formatCurrency } from '../utils/format';
 
-const chartColors = ['#3f51b5', '#ff9800', '#4caf50', '#f44336'];
 const statIcons = [RouteRounded, LocalShippingRounded, TrendingUpRounded];
 
 function ChartCard({
@@ -43,7 +40,7 @@ function ChartCard({
   icon: Icon,
   children,
 }: {
-  title: string;
+  title: string; 
   icon: React.ElementType;
   children: React.ReactNode;
 }) {
@@ -148,11 +145,15 @@ export default function DashboardPage() {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             label="Total de quilômetros"
-            value={`${data.totalKilometers.toLocaleString('pt-BR')} km`}
+            value={`${data.totalQuilometros.toLocaleString('pt-BR')} km`}
             icon={RouteRounded}
           />
         </Grid>
-        {data.indicators.slice(0, 3).map((indicator, index) => {
+        {[
+          { label: 'Total de viagens', value: data.totalViagens.toLocaleString('pt-BR') },
+          { label: 'Total de veículos', value: data.totalVeiculos.toLocaleString('pt-BR') },
+          { label: 'Manutenções pendentes', value: data.manutencoesPendentes.toLocaleString('pt-BR') },
+        ].map((indicator, index) => {
           const Icon = statIcons[index] ?? TrendingUpRounded;
           return (
             <Grid item xs={12} sm={6} md={3} key={indicator.label}>
@@ -162,19 +163,19 @@ export default function DashboardPage() {
         })}
 
         <Grid item xs={12} md={6}>
-          <ChartCard title="Volume por categoria" icon={BarChartRounded}>
+          <ChartCard title="Viagens por tipo de veículo" icon={BarChartRounded}>
             <Box sx={{ width: '100%', height: 320 }}>
               <ResponsiveContainer>
-                <BarChart data={data.categoryVolumes} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <BarChart data={data.viagensPorTipoVeiculo} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
-                  <XAxis dataKey="category" tickLine={false} axisLine={false} fontSize={12} />
+                  <XAxis dataKey="tipo" tickLine={false} axisLine={false} fontSize={12} />
                   <YAxis tickLine={false} axisLine={false} fontSize={12} width={40} />
                   <Tooltip
                     cursor={{ fill: 'rgba(63,81,181,0.06)' }}
                     contentStyle={{ borderRadius: 8, border: '1px solid #eee' }}
                   />
                   <Legend />
-                  <Bar dataKey="value" fill="#3f51b5" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                  <Bar dataKey="quantidadeViagens" fill="#3f51b5" radius={[6, 6, 0, 0]} maxBarSize={48} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>
@@ -182,8 +183,8 @@ export default function DashboardPage() {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <ChartCard title="Ranking de veículos" icon={DonutLargeRounded}>
-            {data.vehicleRanking.length === 0 ? (
+          <ChartCard title="Quilômetros por veículo" icon={DonutLargeRounded}>
+            {data.quilometrosPorVeiculo.length === 0 ? (
               <Box
                 sx={{
                   height: 320,
@@ -197,31 +198,25 @@ export default function DashboardPage() {
             ) : (
               <Box sx={{ width: '100%', height: 320 }}>
                 <ResponsiveContainer>
-                  <PieChart>
-                    <Pie
-                      data={data.vehicleRanking}
-                      dataKey="kilometers"
-                      nameKey="vehicle"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={100}
-                      paddingAngle={2}
-                      label
-                    >
-                      {data.vehicleRanking.map((entry, index) => (
-                        <Cell key={entry.vehicle} fill={chartColors[index % chartColors.length]} stroke="none" />
-                      ))}
-                    </Pie>
+                  <BarChart data={data.quilometrosPorVeiculo}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.06)" />
+                    <XAxis dataKey="modelo" tickLine={false} axisLine={false} fontSize={12} />
+                    <YAxis tickLine={false} axisLine={false} fontSize={12} width={40} />
                     <Tooltip
                       formatter={(value: number) => `${value.toLocaleString('pt-BR')} km`}
                       contentStyle={{ borderRadius: 8, border: '1px solid #eee' }}
                     />
-                  </PieChart>
+                    <Bar dataKey="totalKm" fill="#4caf50" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                  </BarChart>
                 </ResponsiveContainer>
               </Box>
             )}
           </ChartCard>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography color="text.secondary">
+            Custo total de manutenção: <strong>{formatCurrency(data.custoTotalManutencao)}</strong>
+          </Typography>
         </Grid>
       </Grid>
     </Box>

@@ -1,6 +1,7 @@
 package com.challenge.viagensbackend.application.model;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "TRIPS")
+@Table(name = "viagens")
 public class Viagem {
 
     @Id
@@ -20,23 +21,23 @@ public class Viagem {
     private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "vehicle_id", nullable = false)
+    @JoinColumn(name = "veiculo_id", nullable = false)
     private Vehicle vehicle;
 
-    @Column(nullable = false)
-    private LocalDateTime departureTime;
+    @Column(name = "data_saida", nullable = false)
+    private LocalDateTime dataSaida;
 
-    @Column(nullable = false)
-    private LocalDateTime arrivalTime;
+    @Column(name = "data_chegada")
+    private LocalDateTime dataChegada;
 
-    @Column(nullable = false)
-    private String originCity;
+    @Column(name = "origem", length = 100)
+    private String origem;
 
-    @Column(nullable = false)
-    private String destinationCity;
+    @Column(name = "destino", length = 100)
+    private String destino;
 
-    @Column(nullable = false)
-    private Double distanceKm;
+    @Column(name = "km_percorrida", precision = 10, scale = 2)
+    private BigDecimal kmPercorrida;
 
     public Integer getId() {
         return id;
@@ -54,43 +55,43 @@ public class Viagem {
         this.vehicle = vehicle;
     }
 
-    public LocalDateTime getDepartureTime() {
-        return departureTime;
+    public LocalDateTime getDataSaida() {
+        return dataSaida;
     }
 
-    public void setDepartureTime(LocalDateTime departureTime) {
-        this.departureTime = departureTime;
+    public void setDataSaida(LocalDateTime dataSaida) {
+        this.dataSaida = dataSaida;
     }
 
-    public LocalDateTime getArrivalTime() {
-        return arrivalTime;
+    public LocalDateTime getDataChegada() {
+        return dataChegada;
     }
 
-    public void setArrivalTime(LocalDateTime arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public void setDataChegada(LocalDateTime dataChegada) {
+        this.dataChegada = dataChegada;
     }
 
-    public String getOriginCity() {
-        return originCity;
+    public String getOrigem() {
+        return origem;
     }
 
-    public void setOriginCity(String originCity) {
-        this.originCity = originCity;
+    public void setOrigem(String origem) {
+        this.origem = origem;
     }
 
-    public String getDestinationCity() {
-        return destinationCity;
+    public String getDestino() {
+        return destino;
     }
 
-    public void setDestinationCity(String destinationCity) {
-        this.destinationCity = destinationCity;
+    public void setDestino(String destino) {
+        this.destino = destino;
     }
 
-    public Double getDistanceKm() {
-        return distanceKm;
+    public BigDecimal getKmPercorrida() {
+        return kmPercorrida;
     }
 
-    public void setDistanceKm(Double distanceKm) {
-        this.distanceKm = distanceKm;
+    public void setKmPercorrida(BigDecimal kmPercorrida) {
+        this.kmPercorrida = kmPercorrida;
     }
 }

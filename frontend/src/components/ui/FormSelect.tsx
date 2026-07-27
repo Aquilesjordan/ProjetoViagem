@@ -1,25 +1,23 @@
 import { FormControl, InputLabel, MenuItem, Select, SelectProps, FormHelperText } from '@mui/material';
-import { Controller, Control } from 'react-hook-form';
+import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 
 type Option = {
   label: string;
-  value: string;
+  value: string | number;
 };
 
-type Props<T> = Omit<SelectProps, 'name' | 'value' | 'onChange'> & {
-  name: keyof T & string;
+type Props<T extends FieldValues> = Omit<SelectProps, 'name' | 'value' | 'onChange'> & {
+  name: Path<T>;
   control: Control<T>;
   label: string;
   options: Option[];
-  defaultValue?: string;
 };
 
-export function FormSelect<T>({ name, control, label, options, defaultValue = '', ...rest }: Props<T>) {
+export function FormSelect<T extends FieldValues>({ name, control, label, options, ...rest }: Props<T>) {
   return (
     <Controller
       name={name}
       control={control}
-      defaultValue={defaultValue}
       render={({ field, fieldState }) => (
         <FormControl fullWidth error={Boolean(fieldState.error)}>
           <InputLabel>{label}</InputLabel>

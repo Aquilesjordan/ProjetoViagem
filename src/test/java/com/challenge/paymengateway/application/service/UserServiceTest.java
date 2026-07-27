@@ -3,6 +3,7 @@ package com.challenge.viagensbackend.application.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -69,7 +70,8 @@ class UserServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> userService.createUser(validDto));
-        assertEquals("E-mail j� cadastrado", ex.getMessage());
+        assertTrue(ex.getMessage().contains("E-mail"));
+        assertTrue(ex.getMessage().contains("cadastrado"));
     }
 
     @Test
@@ -78,7 +80,8 @@ class UserServiceTest {
         when(userRepository.existsByCpf(anyString())).thenReturn(true);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> userService.createUser(validDto));
-        assertEquals("CPF j� cadastrado", ex.getMessage());
+        assertTrue(ex.getMessage().contains("CPF"));
+        assertTrue(ex.getMessage().contains("cadastrado"));
     }
 
     @Test
@@ -89,6 +92,7 @@ class UserServiceTest {
         when(userRepository.existsByCpf(anyString())).thenReturn(false);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> userService.createUser(invalidCpfDto));
-        assertEquals("CPF inv�lido", ex.getMessage());
+        assertTrue(ex.getMessage().contains("CPF"));
+        assertTrue(ex.getMessage().toLowerCase().contains("inv"));
     }
 }

@@ -70,10 +70,11 @@ public class ViagemController {
             @RequestParam Optional<Double> maxDistanceKm,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "departureTime,desc") String sort) {
+            @RequestParam(defaultValue = "dataSaida,desc") String sort) {
 
         String[] sortParams = sort.split(",");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]));
+        Sort.Direction direction = sortParams.length > 1 ? Sort.Direction.fromString(sortParams[1]) : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
         Page<ViagemResponseDTO> result = viagemService.listTravels(vehicleId, originCity, destinationCity, departureStart, departureEnd,
                 minDistanceKm, maxDistanceKm, pageable);
         return ResponseEntity.ok(result);

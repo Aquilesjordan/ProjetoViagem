@@ -1,21 +1,21 @@
-export type Metric = {
-  label: string;
-  value: string;
-};
-
-export type RankingItem = {
-  vehicle: string;
-  kilometers: number;
-};
-
-export type CategoryVolume = {
-  category: string;
-  value: number;
-};
-
 export type DashboardResponse = {
-  totalKilometers: number;
-  categoryVolumes: CategoryVolume[];
-  vehicleRanking: RankingItem[];
-  indicators: Metric[];
+  totalQuilometros: number;
+  totalViagens: number;
+  totalVeiculos: number;
+  manutencoesPendentes: number;
+  custoTotalManutencao: number;
+  quilometrosPorVeiculo: Array<{
+    veiculoId: number;
+    placa: string;
+    modelo: string;
+    totalKm: number;
+  }>;
+  viagensPorTipoVeiculo: Array<{
+    tipo: string;
+    quantidadeViagens: number;
+  }>;
+  manutencoesPorStatus: Array<{
+    status: string;
+    quantidade: number;
+  }>;
 };

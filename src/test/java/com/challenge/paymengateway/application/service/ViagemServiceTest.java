@@ -39,9 +39,9 @@ class ViagemServiceTest {
     void shouldCreateTravel() {
         Vehicle vehicle = new Vehicle();
         vehicle.setId(1);
-        vehicle.setPlate("ABC1234");
+        vehicle.setPlaca("ABC1234");
         vehicle.setModel("Model 1");
-        vehicle.setCategory(VehicleCategory.LEVE);
+        vehicle.setTipo(VehicleCategory.LEVE);
 
         when(vehicleService.getVehicle(eq(1))).thenReturn(vehicle);
 
@@ -57,8 +57,8 @@ class ViagemServiceTest {
 
         ViagemResponseDTO response = viagemService.createTravel(request);
 
-        assertEquals(1, response.vehicleId());
-        assertEquals("ABC1234", response.vehiclePlate());
-        assertEquals("São Paulo", response.originCity());
+        assertEquals(1, response.veiculoId());
+        assertEquals("ABC1234", response.veiculoPlaca());
+        assertEquals("São Paulo", response.origem());
     }
 }

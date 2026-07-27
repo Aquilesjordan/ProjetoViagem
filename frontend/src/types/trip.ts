@@ -1,38 +1,50 @@
 export type Trip = {
-  id: string;
-  vehicle: string;
-  vehicleId: string;
-  origin: string;
-  destination: string;
-  departureDate: string;
-  arrivalDate: string;
-  kilometers: number;
+  id: number;
+  veiculoId: number;
+  veiculoPlaca: string;
+  veiculoModelo: string;
+  veiculoTipo: 'LEVE' | 'PESADO';
+  dataSaida: string;
+  dataChegada: string | null;
+  origem: string;
+  destino: string;
+  kmPercorrida: number;
 };
 
 export type TripPayload = {
-  vehicleId: string;
-  origin: string;
-  destination: string;
-  departureDate: string;
-  arrivalDate: string;
-  kilometers: number;
+  veiculoId: number;
+  origem: string;
+  destino: string;
+  dataSaida: string;
+  dataChegada: string | null;
+  kmPercorrida: number;
 };
 
 export type TripQueryParams = {
-  page: number;
+  page: number; 
   size: number;
-  search?: string;
-  vehicleId?: string;
+  vehicleId?: number;
+  originCity?: string;
+  destinationCity?: string;
+  departureStart?: string;
+  departureEnd?: string;
+  minDistanceKm?: number;
+  maxDistanceKm?: number;
   sort?: string;
-  direction?: 'asc' | 'desc';
 };
 
 export type TripPage = {
-  items: Trip[];
-  total: number;
+  content: Trip[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
 };
 
 export type Vehicle = {
-  id: string;
-  name: string;
+  id: number;
+  placa: string;
+  model: string;
+  tipo: 'LEVE' | 'PESADO';
+  ano: number | null;
 };

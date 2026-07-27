@@ -2,6 +2,8 @@ import { Divider, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Tool
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import BuildCircleIcon from '@mui/icons-material/BuildCircle';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { Link, useLocation } from 'react-router-dom';
 
 type SidebarProps = {
@@ -13,8 +15,10 @@ const drawerWidth = 280;
 
 const navItems = [
   { label: 'Dashboard', to: '/dashboard', icon: <DashboardIcon /> },
+  { label: 'Veículos', to: '/veiculos', icon: <LocalShippingIcon /> },
   { label: 'Viagens', to: '/trips', icon: <DirectionsCarIcon /> },
   { label: 'Cadastro de Viagem', to: '/trips/new', icon: <AddBoxIcon /> },
+  { label: 'Manutenções', to: '/manutencoes', icon: <BuildCircleIcon /> },
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {

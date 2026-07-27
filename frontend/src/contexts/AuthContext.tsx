@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, AuthCredentials } from '../types/auth';
 import { loginRequest } from '../services/authService';
@@ -12,6 +12,12 @@ type AuthContextType = {
   logout: () => void;
 };
 
+const AUTHENTICATED_USER: User = {
+  id: 0,
+  name: 'Usuário autenticado',
+  email: '',
+};
+
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
@@ -22,31 +28,21 @@ export const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(() => {
-  const storedAuth = getStoredAuth();
-
-  if (storedAuth?.token) {
-    api.defaults.headers.common.Authorization = `Bearer ${storedAuth.token}`;
-
-    return {} as User;
-  }
-
-  return null;
-});
-
- const login = async (credentials: AuthCredentials) => {
-  const response = await loginRequest(credentials);
-
-  setUser({} as User);
-
-  setStoredAuth({
-    token: response.token,
+    const storedAuth = getStoredAuth();
+    if (storedAuth?.token) {
+      api.defaults.headers.common.Authorization = `Bearer ${storedAuth.token}`;
+      return AUTHENTICATED_USER;
+    }
+    return null;
   });
 
-  api.defaults.headers.common.Authorization =
-    `Bearer ${response.token}`;
-
-  navigate('/dashboard');
-};
+  const login = async (credentials: AuthCredentials) => {
+    const response = await loginRequest(credentials);
+    setStoredAuth({ token: response.token });
+    api.defaults.headers.common.Authorization = `Bearer ${response.token}`;
+    setUser(AUTHENTICATED_USER);
+    navigate('/dashboard');
+  };
 
   const logout = () => {
     clearStoredAuth();

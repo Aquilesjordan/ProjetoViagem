@@ -1,18 +1,16 @@
 import { TextField, TextFieldProps } from '@mui/material';
-import { Controller, Control } from 'react-hook-form';
+import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 
-type Props<T> = Omit<TextFieldProps, 'name' | 'defaultValue'> & {
-  name: keyof T & string;
+type Props<T extends FieldValues> = Omit<TextFieldProps, 'name' | 'defaultValue'> & {
+  name: Path<T>;
   control: Control<T>;
-  defaultValue?: string;
 };
 
-export function FormTextField<T>({ name, control, defaultValue = '', ...rest }: Props<T>) {
+export function FormTextField<T extends FieldValues>({ name, control, ...rest }: Props<T>) {
   return (
     <Controller
       name={name}
       control={control}
-      defaultValue={defaultValue}
       render={({ field, fieldState }) => (
         <TextField {...field} fullWidth error={Boolean(fieldState.error)} helperText={fieldState.error?.message} {...rest} />
       )}
