@@ -8,7 +8,9 @@ public record DashboardResponseDTO(
         Long totalVeiculos,
         Long manutencoesPendentes,
         Double custoTotalManutencao,
+        Double projecaoFinanceiraMesAtual,
         List<DashboardVeiculoKmDTO> quilometrosPorVeiculo,
         List<DashboardTipoVeiculoDTO> viagensPorTipoVeiculo,
-        List<DashboardManutencaoStatusDTO> manutencoesPorStatus) {
+        List<DashboardManutencaoStatusDTO> manutencoesPorStatus,
+        List<DashboardProximaManutencaoDTO> proximasManutencoes) {
 }
